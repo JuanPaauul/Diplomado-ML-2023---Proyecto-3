@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import azure.cognitiveservices.speech as speechsdk
 import subprocess
+import json
 
 content_safety_path = './content-safety/content-safety.py'
 
@@ -30,7 +31,9 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
     def check_severity_of_request(text):
         comando = ["python", content_safety_path, "--text", text]
         salida_script = subprocess.check_output(comando, universal_newlines=True)
-        print(salida_script)
+        diccionario = eval(salida_script)
+        print("Salida: ", diccionario)
+        print("Tipo de salida: ", type(diccionario))
 
     def recognizing_cb(evt: speechsdk.SpeechRecognitionEventArgs):
         already_called = False

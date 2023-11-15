@@ -6,13 +6,12 @@ from azure.core.exceptions import HttpResponseError
 from azure.ai.contentsafety.models import AnalyzeTextOptions
 import argparse
 import sys
+import json
 
 parser = argparse.ArgumentParser("Analize Text")
 parser.add_argument("--text", type=str, help="Text to be analized")
 
 args = parser.parse_args()
-
-print("Cargar variables de entorno desde archivo .env")
 load_dotenv("env.txt",override=True)
 
 def analyze_text(text_input: str):
@@ -40,22 +39,15 @@ def analyze_text(text_input: str):
     
     severity = {
         "hate":response.hate_result.severity,
-        "self_harm":response.hate_result.severity,
-        "sexual":response.hate_result.severity,
-        "violence":response.hate_result.severity,
+        "self_harm":response.self_harm_result.severity,
+        "sexual":response.sexual_result.severity,
+        "violence":response.violence_result.severity,
     }
 
     return severity
 
 if __name__ == "__main__":
-    # Obtén argumentos de la línea de comandos si es necesario
-    # ...
-
-    # Llama a la función y almacena el resultado
     resultado_funcion = analyze_text(args.text)
-
-    # Imprime o utiliza el resultado
-    print("El resultado es:", resultado_funcion)
-
-    # Devuelve el resultado como código de salida
+    resultado_json = json.dumps(resultado_funcion)
+    print(resultado_json)
     sys.exit(0)
