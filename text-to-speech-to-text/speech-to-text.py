@@ -5,6 +5,8 @@ import subprocess
 import json
 
 content_safety_path = './content-safety/content-safety.py'
+text_to_speech_path = './text-to-speech-to-text/text-to-speech.py'
+summarize_text_path = './summarize-text/summarize.py'
 
 print("Cargar variables de entorno desde archivo .env")
 load_dotenv("./text-to-speech-to-text/env.txt")
@@ -29,16 +31,27 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
         return found, name_found
     
     def check_severity_of_request(text):
-        comando = ["python", content_safety_path, "--text", text]
-        salida_script = subprocess.check_output(comando, universal_newlines=True)
-        diccionario = eval(salida_script)
-        print("Salida: ", diccionario)
-        print("Tipo de salida: ", type(diccionario))
+        command = ["python", content_safety_path, "--text", text]
+        script_output = subprocess.check_output(command, universal_newlines=True)
+        output_dict = eval(script_output)
+        offensive_content = False
+        for severity in output_dict.values():
+            if(severity > 3):
+                offensive_content = True
+        return offensive_content
+
+    def summarize_text(text):
+        if len(text) > 150:
+            command = ["python", summarize_text_path, "--text", text]
+            text = subprocess.check_output(command, universal_newlines=True)
+        return text
+
+    def read_answer(answer):
+        command = ["python", text_to_speech_path, "--text", answer]
+        _ = subprocess.check_output(command, universal_newlines=True)
 
     def recognizing_cb(evt: speechsdk.SpeechRecognitionEventArgs):
-        already_called = False
-        if called_alessandro(evt.result.text)[0] and not already_called:
-            already_called = True
+        if called_alessandro(evt.result.text)[0]:
             print("Alessandro esta atendiendo...")
 
     def recognized_cb(evt: speechsdk.SpeechRecognitionEventArgs):
@@ -46,7 +59,11 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
         if called:
             result = evt.result.text.split(name,1)[1]
             print("Lo que se buscara es: ",result)
-            check_severity_of_request(result)
+            if check_severity_of_request(result):
+                read_answer("Lo siento, no puedo ayudarte porque he detectado contenido ofensivo en tu pregunta")
+            else:
+                result = summarize_text(result)
+                read_answer(result)
 
         print('RECOGNIZED: {}'.format(evt.result.text))
 
