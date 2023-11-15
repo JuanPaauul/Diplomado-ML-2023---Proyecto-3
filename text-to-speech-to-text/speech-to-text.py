@@ -44,10 +44,9 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
     def recognized_cb(evt: speechsdk.SpeechRecognitionEventArgs):
         called, name = called_alessandro(evt.result.text)
         if called:
-            resultado = evt.result.text.split(name,1)
-            parte_derecha = resultado[1].strip() if len(resultado) > 1 else None
-            print("Lo que se buscara es: ",parte_derecha)
-            check_severity_of_request(parte_derecha)
+            result = evt.result.text.split(name,1)[1]
+            print("Lo que se buscara es: ",result)
+            check_severity_of_request(result)
 
         print('RECOGNIZED: {}'.format(evt.result.text))
 
