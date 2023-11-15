@@ -1,6 +1,9 @@
 from dotenv import load_dotenv
 import os
 import azure.cognitiveservices.speech as speechsdk
+import subprocess
+
+content_safety_path = './content-safety/content-safety.py'
 
 print("Cargar variables de entorno desde archivo .env")
 load_dotenv("./text-to-speech-to-text/env.txt")
@@ -23,6 +26,11 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
                 name_found = name
                 break
         return found, name_found
+    
+    def check_severity_of_request(text):
+        comando = ["python", content_safety_path, "--text", text]
+        salida_script = subprocess.check_output(comando, universal_newlines=True)
+        print(salida_script)
 
     def recognizing_cb(evt: speechsdk.SpeechRecognitionEventArgs):
         already_called = False
@@ -35,8 +43,9 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
         if called:
             resultado = evt.result.text.split(name,1)
             parte_derecha = resultado[1].strip() if len(resultado) > 1 else None
-            print("COSO A BUSCAR: ",parte_derecha)
-            stop = "stop"
+            print("Lo que se buscara es: ",parte_derecha)
+            check_severity_of_request(parte_derecha)
+
         print('RECOGNIZED: {}'.format(evt.result.text))
 
     def stop_cb(evt: speechsdk.SessionEventArgs):
@@ -57,6 +66,7 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
     print('type "stop" then enter when done')
 
     while not done:
+        stop = input()
         if (stop.lower() == "stop"):
             print('Stopping async recognition.')
             speech_recognizer.stop_continuous_recognition_async()

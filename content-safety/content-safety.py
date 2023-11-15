@@ -5,6 +5,7 @@ from azure.core.credentials import AzureKeyCredential
 from azure.core.exceptions import HttpResponseError
 from azure.ai.contentsafety.models import AnalyzeTextOptions
 import argparse
+import sys
 
 parser = argparse.ArgumentParser("Analize Text")
 parser.add_argument("--text", type=str, help="Text to be analized")
@@ -36,14 +37,25 @@ def analyze_text(text_input: str):
             raise
         print(e)
         raise
+    
+    severity = {
+        "hate":response.hate_result.severity,
+        "self_harm":response.hate_result.severity,
+        "sexual":response.hate_result.severity,
+        "violence":response.hate_result.severity,
+    }
 
-    if response.hate_result:
-        print(f"Hate severity: {response.hate_result.severity}")
-    if response.self_harm_result:
-        print(f"SelfHarm severity: {response.self_harm_result.severity}")
-    if response.sexual_result:
-        print(f"Sexual severity: {response.sexual_result.severity}")
-    if response.violence_result:
-        print(f"Violence severity: {response.violence_result.severity}")
+    return severity
 
-analyze_text(args.text)
+if __name__ == "__main__":
+    # Obtén argumentos de la línea de comandos si es necesario
+    # ...
+
+    # Llama a la función y almacena el resultado
+    resultado_funcion = analyze_text(args.text)
+
+    # Imprime o utiliza el resultado
+    print("El resultado es:", resultado_funcion)
+
+    # Devuelve el resultado como código de salida
+    sys.exit(0)
