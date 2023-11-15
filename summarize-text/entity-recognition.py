@@ -34,8 +34,6 @@ client = authenticate_client()
 def entity_recognition_example(client, documents):
     try:
         result = client.recognize_entities(documents = documents)[0]
-
-        print("Named Entities:\n")
         return result.entities
     
     except Exception as err:

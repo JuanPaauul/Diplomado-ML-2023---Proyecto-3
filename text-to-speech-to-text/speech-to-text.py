@@ -7,6 +7,7 @@ import json
 content_safety_path = './content-safety/content-safety.py'
 text_to_speech_path = './text-to-speech-to-text/text-to-speech.py'
 summarize_text_path = './summarize-text/summarize.py'
+entity_recognition_path = './summarize-text/entity-recognition.py'
 
 print("Cargar variables de entorno desde archivo .env")
 load_dotenv("./text-to-speech-to-text/env.txt")
@@ -45,6 +46,12 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
             command = ["python", summarize_text_path, "--text", text]
             text = subprocess.check_output(command, universal_newlines=True)
         return text
+    
+    def get_entities(text):
+        command = ["python", entity_recognition_path, "--text", text]
+        script_output = subprocess.check_output(command, universal_newlines=True)
+        output_dict = eval(script_output)
+        return output_dict
 
     def read_answer(answer):
         command = ["python", text_to_speech_path, "--text", answer]
@@ -63,7 +70,9 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
                 read_answer("Lo siento, no puedo ayudarte porque he detectado contenido ofensivo en tu pregunta")
             else:
                 result = summarize_text(result)
-                read_answer(result)
+                entities = get_entities(result)
+                entities = ''.join(entities)
+                read_answer(entities)
 
         print('RECOGNIZED: {}'.format(evt.result.text))
 
