@@ -19,7 +19,6 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
 
     done = False
     stop = ''
-    alessandro_is_listening = False
     
     def called_alessandro(speach):
         names = ['alessandro','alexandro']
@@ -61,13 +60,14 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
         script_output = subprocess.check_output(command, universal_newlines=True)
         return script_output
 
-    def read_answer(answer):
-        print('Alessandro esta respondiendo...')
+    def read_answer(answer, show_text = True):
+        if show_text:
+            print('Alessandro esta respondiendo...')
         command = ["python", text_to_speech_path, "--text", answer]
         _ = subprocess.check_output(command, universal_newlines=True)
 
     def ask_alessandro(question, name):
-        print("Alessandro esta pensando...")
+        print("Alessandro esta pensando...", question)
         result = question.split(name,1)[1]
         if check_severity_of_request(result):
             read_answer("Lo siento, no puedo ayudarte porque he detectado contenido ofensivo en tu pregunta")
@@ -76,19 +76,17 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
             entities = get_entities(result)
             if len(entities) > 0:
                 information = get_knowledge_graph(entities)
-                read_answer(f'¡Claro! {information}')
+                read_answer(f'¡Claro! {information}. ¿Tienes alguna otra pregunta?')
             else:
                 read_answer("Lo siento, soy un asistente únicamente orientado a darte información sobre figuras públicas.")
         print('Alessandro termino de responder. \n')
 
     def recognizing_cb(evt: speechsdk.SpeechRecognitionEventArgs):
-        if called_alessandro(evt.result.text)[0] and not alessandro_is_listening:
-            alessandro_is_listening = True
+        if called_alessandro(evt.result.text.lower())[0]:
             print("Alessandro esta atendiendo...")
 
     def recognized_cb(evt: speechsdk.SpeechRecognitionEventArgs):
-        alessandro_is_listening = False
-        called, name = called_alessandro(evt.result.text)
+        called, name = called_alessandro(evt.result.text.lower())
         if called:
             ask_alessandro(evt.result.text, name)
 
@@ -106,8 +104,7 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
     result_future = speech_recognizer.start_continuous_recognition_async()
 
     result_future.get()  # wait for voidfuture, so we know engine initialization is done.
-    print('Todo listo, puedes empezar a hablar con Alessandro.')
-    print('Para terminar la ejecucion, escribe stop.')
+    read_answer('¡Hola! soy Alessandro tu asistente virtual, para que te responda no olvides llamarme por mi nombre.', False)
 
     while not done:
         stop = input()
