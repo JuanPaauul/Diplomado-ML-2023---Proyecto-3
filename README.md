@@ -40,12 +40,11 @@ To use Alessandro, follow the installation instructions below. Make sure to conf
 ## Installation and Setup
 
 make sure you have all the keys and endpoints previously set up before this 
-```bash
-# Clone the Repository
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
 
-# Install Dependencies
+**Clone the Repository** 
+git clone https://github.com/JuanPaauul/Diplomado-ML-2023---Proyecto-3.git
+
+**Install Dependencies and libraries**
 pip install ipykernel
 pip install python-dotenv
 other if necessary
