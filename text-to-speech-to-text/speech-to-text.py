@@ -67,7 +67,7 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
         _ = subprocess.check_output(command, universal_newlines=True)
 
     def ask_alessandro(question, name):
-        print("Alessandro esta pensando...", question)
+        print("Alessandro esta pensando...")
         result = question.split(name,1)[1]
         if check_severity_of_request(result):
             read_answer("Lo siento, no puedo ayudarte porque he detectado contenido ofensivo en tu pregunta")
@@ -104,6 +104,7 @@ def speech_recognize_continuous_async_from_microphone(speech_config):
     result_future = speech_recognizer.start_continuous_recognition_async()
 
     result_future.get()  # wait for voidfuture, so we know engine initialization is done.
+    print('¡Hola! soy Alessandro tu asistente virtual, para que te responda no olvides llamarme por mi nombre. \n')
     read_answer('¡Hola! soy Alessandro tu asistente virtual, para que te responda no olvides llamarme por mi nombre.', False)
 
     while not done:
